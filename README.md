@@ -154,5 +154,5 @@ Some modules are intentionally designed for future expansion:
 
 # Contributors
 
-**Upasana Mukherjee**
+**Upasana Mukherjee, Rudranil Chakraborty**
 Built for **ET AI Hackathon 2026**.
