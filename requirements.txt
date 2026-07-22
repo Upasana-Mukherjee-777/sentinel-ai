@@ -1,0 +1,27 @@
+# Backend / API
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+
+# Agent orchestration
+langgraph==0.2.34
+
+# ML (WhatsApp / UPI agents)
+scikit-learn==1.5.2
+numpy==1.26.4
+
+# Computer vision (Counterfeit Currency agent)
+opencv-python-headless==4.10.0.84
+
+# Graph DB driver (Fraud Network Graph agent)
+neo4j==5.24.0
+
+# Postgres driver
+psycopg2-binary==2.9.9
+
+# Caching / session state
+redis==5.0.8
+
+# Testing
+pytest==8.3.3
+httpx==0.27.2

@@ -1,0 +1,13 @@
+Recommended investigation steps for digital arrest / impersonation scam
+complaints (illustrative, based on common cyber cell practice, not a
+legal provision): (1) preserve the call recording or screen-recording
+provided by the complainant as evidence with a documented chain of
+custody, (2) identify the originating phone number and check it against
+the Fraud Network Graph for prior linked reports, (3) trace any payment
+made during or after the call through the receiving UPI ID or bank
+account, again cross-checked against the Fraud Network Graph for mule
+account patterns, (4) if a fake video-call "arrest" was staged, request
+any deepfake analysis available on the recording, (5) advise the
+complainant that no genuine Indian law enforcement or government agency
+conducts arrests, investigations, or demands payment over a phone or
+video call.

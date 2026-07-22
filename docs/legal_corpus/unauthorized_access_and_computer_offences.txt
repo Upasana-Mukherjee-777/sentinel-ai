@@ -1,0 +1,8 @@
+IT Act 2000, computer-related offences (illustrative summary, verify
+current text before citing in any real filing): unauthorized access to
+a computer, computer system, or network, and causing wrongful loss or
+damage through such access, is a punishable offence. This is the
+relevant category for cases involving phishing websites that harvest
+login credentials, malicious QR codes that redirect to credential-
+harvesting pages, and unauthorized transactions initiated after such
+credential theft.

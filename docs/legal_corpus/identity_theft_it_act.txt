@@ -1,0 +1,12 @@
+IT Act 2000, provisions on identity theft and impersonation (illustrative
+summary, verify exact section number and current text before citing in
+any real filing): fraudulent or dishonest use of another person's
+electronic signature, password, or other unique identification feature
+is treated as identity theft. Cheating by personation using a computer
+resource -- for example, impersonating a bank, police officer, or
+government official over a call or through a fake message to induce a
+victim to hand over money or credentials -- is a distinct, related
+offence. Digital arrest scams and fake-KYC/fake-government-notice
+message scams both fall under this category, since the core mechanism
+is impersonation of an authority through an electronic medium to induce
+a fraudulent transfer.

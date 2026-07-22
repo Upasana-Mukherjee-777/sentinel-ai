@@ -1,0 +1,10 @@
+DEMO CORPUS DISCLAIMER: The files in this folder are short, illustrative,
+paraphrased summaries written for this hackathon demo to show how the
+Police Copilot's retrieval-then-cite pattern works. They are NOT verbatim
+statute text, they are NOT guaranteed to reflect the current, amended
+text of the IT Act 2000 or the Bharatiya Nyaya Sanhita (BNS) 2023, and
+they are NOT a substitute for consulting the official government
+gazette text or a qualified legal professional. In production (Blueprint
+Section 13), this corpus is replaced entirely by ingested, versioned,
+officially-sourced legal text with section-level citations, refreshed
+on a schedule so amendments are caught automatically.

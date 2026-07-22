@@ -1,0 +1,33 @@
+# infra/ci-cd/github-actions.yml
+# Copy to .github/workflows/ci.yml at the repo root to activate.
+name: Sentinel AI CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Lint (ruff)
+        run: pip install ruff && ruff check services/ tests/ || true
+
+      - name: Run tests
+        run: pytest tests/ -v
+
+      - name: Smoke-test the API boots
+        run: |
+          python -c "from services.api_gateway.main import app; print('FastAPI app imported OK:', app.title)"

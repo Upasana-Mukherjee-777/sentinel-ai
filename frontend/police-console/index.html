@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sentinel — Police Console</title>
+<style>
+  :root{
+    --ink:#0B1220; --surface:#121A2B; --surface-2:#182238; --line:rgba(232,236,244,0.09);
+    --text:#E8ECF4; --text-dim:#8792A8; --trust:#3E7CFF; --amber:#F5A623;
+    --danger:#E5484D; --safe:#2FA66B;
+    --font-display:'Space Grotesk', system-ui, sans-serif;
+    --font-body:'Inter', system-ui, sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, monospace;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--ink); color:var(--text); font-family:var(--font-body); font-size:14px;}
+
+  .shell{display:grid; grid-template-columns:220px 1fr; min-height:100vh;}
+
+  nav{
+    background:var(--surface); border-right:1px solid var(--line);
+    padding:20px 0; display:flex; flex-direction:column;
+  }
+  .brand{
+    font-family:var(--font-display); font-weight:700; font-size:15px;
+    padding:0 20px 20px; border-bottom:1px solid var(--line); margin-bottom:16px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .brand .mark{
+    width:8px; height:8px; border-radius:50%; background:var(--trust);
+    box-shadow:0 0 8px var(--trust);
+  }
+  .navitem{
+    padding:11px 20px; color:var(--text-dim); font-size:13px; cursor:pointer;
+    border-left:2px solid transparent; display:flex; align-items:center; justify-content:space-between;
+  }
+  .navitem.active{ color:var(--text); border-left-color:var(--trust); background:var(--surface-2); }
+  .navitem .count{
+    font-family:var(--font-mono); font-size:10.5px; color:var(--text-dim);
+    background:var(--surface); border:1px solid var(--line); border-radius:5px; padding:1px 6px;
+  }
+  .navfoot{ margin-top:auto; padding:16px 20px; font-family:var(--font-mono); font-size:11px; color:var(--text-dim); border-top:1px solid var(--line); }
+
+  main{ padding:24px 28px 60px; overflow-x:hidden; }
+  .topbar{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:22px; }
+  h1{ font-family:var(--font-display); font-weight:700; font-size:21px; margin:0; }
+  .subtitle{ color:var(--text-dim); font-size:12.5px; margin-top:3px; }
+  .badge-role{ font-family:var(--font-mono); font-size:11px; color:var(--trust); border:1px solid rgba(62,124,255,0.35); background:rgba(62,124,255,0.08); padding:5px 10px; border-radius:6px; }
+
+  .grid{ display:grid; grid-template-columns:1.3fr 1fr; gap:20px; }
+  .panel{ background:var(--surface); border:1px solid var(--line); border-radius:12px; overflow:hidden; }
+  .panel-head{
+    padding:14px 18px; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .panel-title{ font-family:var(--font-display); font-weight:700; font-size:13.5px; letter-spacing:0.01em; }
+  .panel-body{ padding:16px 18px; }
+
+  table{ width:100%; border-collapse:collapse; }
+  th{
+    text-align:left; font-family:var(--font-mono); font-size:10.5px; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--text-dim); font-weight:500; padding:8px 6px; border-bottom:1px solid var(--line);
+  }
+  td{ padding:11px 6px; border-bottom:1px solid var(--line); font-size:13px; }
+  tr:last-child td{ border-bottom:none; }
+  tr.case-row{ cursor:pointer; }
+  tr.case-row:hover{ background:var(--surface-2); }
+  .sev{ display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:8px; }
+  .sev.high{ background:var(--danger); box-shadow:0 0 6px var(--danger); }
+  .sev.med{ background:var(--amber); }
+  .sev.low{ background:var(--safe); }
+  .case-id{ font-family:var(--font-mono); color:var(--text-dim); font-size:11.5px; }
+  .status-chip{
+    font-family:var(--font-mono); font-size:10.5px; padding:3px 8px; border-radius:5px;
+    border:1px solid var(--line); color:var(--text-dim); text-transform:uppercase;
+  }
+
+  #graphSvg{ width:100%; height:220px; display:block; }
+  .graph-legend{ display:flex; gap:14px; margin-top:10px; font-family:var(--font-mono); font-size:10.5px; color:var(--text-dim); }
+  .legend-dot{ width:7px; height:7px; border-radius:50%; display:inline-block; margin-right:5px; }
+
+  .copilot-box{ margin-top:20px; }
+  .copilot-input-row{ display:flex; gap:8px; }
+  .copilot-input-row input{
+    flex:1; background:var(--surface-2); border:1px solid var(--line); border-radius:8px;
+    color:var(--text); padding:10px 12px; font-family:var(--font-body); font-size:13px; outline:none;
+  }
+  .copilot-input-row input:focus{ border-color:var(--trust); }
+  .copilot-input-row button{
+    font-family:var(--font-display); font-weight:700; font-size:12.5px; border:none; border-radius:8px;
+    background:var(--trust); color:white; padding:0 16px; cursor:pointer;
+  }
+  .copilot-output{
+    margin-top:14px; padding:14px; border-radius:10px; background:var(--surface-2);
+    border:1px solid var(--line); font-size:12.5px; line-height:1.6; color:var(--text-dim);
+    white-space:pre-wrap; font-family:var(--font-mono); display:none;
+  }
+  .copilot-output.show{ display:block; }
+  .copilot-cite{ color:var(--trust); }
+
+  .full-width{ grid-column:1 / -1; margin-top:20px; }
+  .heatmap-row{ display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid var(--line); }
+  .heatmap-row:last-child{ border-bottom:none; }
+  .district{ width:110px; font-size:13px; }
+  .bar-track{ flex:1; height:8px; background:var(--surface-2); border-radius:4px; overflow:hidden; }
+  .bar-fill{ height:100%; border-radius:4px; background:var(--trust); }
+  .trend{ width:90px; text-align:right; font-family:var(--font-mono); font-size:10.5px; }
+  .trend.rising{ color:var(--danger); }
+  .trend.stable{ color:var(--text-dim); }
+
+  .note{ margin-top:20px; padding:12px 16px; border-radius:10px; background:var(--surface-2); border:1px solid var(--line); font-size:11.5px; color:var(--text-dim); line-height:1.5; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav>
+    <div class="brand"><span class="mark"></span> SENTINEL / OPS</div>
+    <div class="navitem active">Case Queue <span class="count">7</span></div>
+    <div class="navitem">Graph Explorer</div>
+    <div class="navitem">Copilot</div>
+    <div class="navitem">Crime Heatmap</div>
+    <div class="navitem">Evidence Vault</div>
+    <div class="navfoot">Officer: R. Bannerjee<br/>Cyber Cell — Kolkata South</div>
+  </nav>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h1>Case Queue</h1>
+        <div class="subtitle">Sample case data for demo purposes — wire to <code>/agents/*</code> + Postgres for live use</div>
+      </div>
+      <div class="badge-role">ROLE: POLICE</div>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">Open Cases</span><span class="status-chip">7 open</span></div>
+        <div class="panel-body">
+          <table>
+            <thead><tr><th>Sev</th><th>Case</th><th>Type</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr class="case-row"><td><span class="sev high"></span></td><td><div class="case-id">SNT-2026-0114</div>Digital arrest — CBI impersonation</td><td>Call</td><td><span class="status-chip">investigating</span></td></tr>
+              <tr class="case-row"><td><span class="sev high"></span></td><td><div class="case-id">SNT-2026-0113</div>Fake KYC + UPI transfer, ₹40,000</td><td>WhatsApp+UPI</td><td><span class="status-chip">escalated</span></td></tr>
+              <tr class="case-row"><td><span class="sev med"></span></td><td><div class="case-id">SNT-2026-0111</div>Parcel customs-fee scam</td><td>WhatsApp</td><td><span class="status-chip">open</span></td></tr>
+              <tr class="case-row"><td><span class="sev med"></span></td><td><div class="case-id">SNT-2026-0109</div>Counterfeit ₹500 note reported</td><td>Currency</td><td><span class="status-chip">open</span></td></tr>
+              <tr class="case-row"><td><span class="sev low"></span></td><td><div class="case-id">SNT-2026-0107</div>Suspicious loan-app phishing site</td><td>Website</td><td><span class="status-chip">investigating</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title">Graph Explorer — SNT-2026-0113</span><span class="status-chip">2-hop view</span></div>
+        <div class="panel-body">
+          <svg id="graphSvg" viewBox="0 0 400 220"></svg>
+          <div class="graph-legend">
+            <span><span class="legend-dot" style="background:var(--danger)"></span>flagged (risk &gt; 0.5)</span>
+            <span><span class="legend-dot" style="background:var(--trust)"></span>entity</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel full-width">
+        <div class="panel-head"><span class="panel-title">Police Copilot</span><span class="status-chip">RAG · cites sources</span></div>
+        <div class="panel-body">
+          <div class="copilot-box">
+            <div class="copilot-input-row">
+              <input id="copilotInput" type="text" value="Victim received a call from someone claiming to be CBI, threatened digital arrest, demanded money transfer" />
+              <button id="copilotBtn">Summarize & recommend sections</button>
+            </div>
+            <div class="copilot-output" id="copilotOutput"></div>
+          </div>
+          <div class="note">This panel calls the live <code>/agents/copilot/case/summary</code> endpoint (role: police), which retrieves from the bundled legal-snippet corpus and cites every claim — nothing here is generated without a source. Start the backend with <code>docker compose up</code> to try it.</div>
+        </div>
+      </div>
+
+      <div class="panel full-width">
+        <div class="panel-head"><span class="panel-title">Crime Heatmap — trailing 7 days</span><span class="status-chip">sample data</span></div>
+        <div class="panel-body">
+          <div class="heatmap-row"><span class="district">Kolkata South</span><div class="bar-track"><div class="bar-fill" style="width:82%"></div></div><span class="trend rising">↑ rising</span></div>
+          <div class="heatmap-row"><span class="district">Howrah</span><div class="bar-track"><div class="bar-fill" style="width:54%"></div></div><span class="trend stable">stable</span></div>
+          <div class="heatmap-row"><span class="district">Salt Lake</span><div class="bar-track"><div class="bar-fill" style="width:38%"></div></div><span class="trend stable">stable</span></div>
+          <div class="heatmap-row"><span class="district">New Town</span><div class="bar-track"><div class="bar-fill" style="width:29%"></div></div><span class="trend rising">↑ rising</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const API_BASE = window.SENTINEL_API_BASE || 'http://localhost:8000';
+
+// --- Graph Explorer: simple force-ish static layout, sample topology ---
+const nodes = [
+  {id:'phone', x:200, y:110, r:16, label:'Phone', risk:0.82},
+  {id:'upi', x:90, y:60, r:13, label:'UPI ID', risk:0.79},
+  {id:'device', x:90, y:165, r:11, label:'Device', risk:0.31},
+  {id:'victim', x:310, y:60, r:12, label:'Victim', risk:0.1},
+  {id:'website', x:310, y:165, r:12, label:'Website', risk:0.61},
+];
+const edges = [['phone','upi'], ['phone','device'], ['phone','victim'], ['phone','website']];
+
+const svgNS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('graphSvg');
+edges.forEach(([a,b]) => {
+  const n1 = nodes.find(n=>n.id===a), n2 = nodes.find(n=>n.id===b);
+  const line = document.createElementNS(svgNS, 'line');
+  line.setAttribute('x1', n1.x); line.setAttribute('y1', n1.y);
+  line.setAttribute('x2', n2.x); line.setAttribute('y2', n2.y);
+  line.setAttribute('stroke', 'rgba(232,236,244,0.18)'); line.setAttribute('stroke-width', '1.5');
+  svg.appendChild(line);
+});
+nodes.forEach(n => {
+  const circle = document.createElementNS(svgNS, 'circle');
+  circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y); circle.setAttribute('r', n.r);
+  circle.setAttribute('fill', n.risk > 0.5 ? '#E5484D' : '#3E7CFF');
+  circle.setAttribute('fill-opacity', '0.85');
+  svg.appendChild(circle);
+
+  const label = document.createElementNS(svgNS, 'text');
+  label.setAttribute('x', n.x); label.setAttribute('y', n.y + n.r + 14);
+  label.setAttribute('text-anchor', 'middle'); label.setAttribute('fill', '#8792A8');
+  label.setAttribute('font-family', 'IBM Plex Mono, monospace'); label.setAttribute('font-size', '9.5');
+  label.textContent = n.label;
+  svg.appendChild(label);
+});
+
+// --- Police Copilot: live call to the real RAG agent ---
+document.getElementById('copilotBtn').addEventListener('click', async () => {
+  const query = document.getElementById('copilotInput').value.trim();
+  const output = document.getElementById('copilotOutput');
+  if(!query) return;
+
+  output.classList.add('show');
+  output.textContent = 'Retrieving relevant sections…';
+
+  try {
+    const res = await fetch(`${API_BASE}/agents/copilot/case/summary`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Demo-Role': 'police' },
+      body: JSON.stringify({ case_description: query, top_k: 3 })
+    });
+    const data = await res.json();
+    output.textContent =
+      `VERDICT: ${data.verdict}   CONFIDENCE: ${(data.confidence*100).toFixed(0)}%\n` +
+      `CITED SOURCES: ${data.supporting_law || 'none'}\n\n` +
+      data.reasoning;
+  } catch (err) {
+    output.textContent = 'Could not reach the Sentinel backend. Start it with `docker compose up` and try again.';
+  }
+});
+</script>
+</body>
+</html>
